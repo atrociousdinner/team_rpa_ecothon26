@@ -9,7 +9,7 @@ def insert_product(product, csv_file):
         print(json.dumps({"error": "Missing barcode"}))
         return
 
-    fieldnames = ["serial_no", "code", "product_name", "brands", "image_url", "tags", "eco_score"]
+    fieldnames = ["serial_no", "code", "product_name", "brands", "image_url", "product_tags","other_tags", "eco_score"]
 
     # Check if CSV exists
     file_exists = os.path.exists(csv_file)

@@ -1,140 +1,400 @@
-export const positiveTagWeights: Record<string, number> = {
-    "en:green-dot": 0.4,
-    "green":0.4,
-    "dot":0.4,
-    "plant-based": 0.4,
-    "fresh":0.3,
-    "en:organic": 0.4,
-    "en:eu-organic": 0.5,
-    "bio": 0.5,
-    "natural": 0.3,
-    "naturel":0.3,
-    "organic": 0.4,
-    "recyclable": 0.4,
-    "sans": 0.2,
-    "vert": 0.2,
-    "water":0.1,
-    "usda":0.5,
-    "fruits":0.35,
-    "vegetables":0.35,
-    "agriculture":0.4,
-    "biologique":0.4,
-    "tournesol":0.2,
-    "colza": 0.15,
+export type TagWeightCategory =
+  | "certification"
+  | "packaging"
+  | "processing"
+  | "ingredient-impact"
+  | "product-category"
+  | "weak-contextual";
 
-  }
+export type TagWeightConfidence = "high" | "medium" | "low";
 
-export const negativeTagWeights: Record<string, number> = {
-    "plastique": 0.5,
-    "plastic": 0.5,
-    "acid": 0.3,
-    "acide": 0.3,
-    "citrique": 0.2,
-    "e330": 0.2,
-    "sodium": 0.2,
-    "carton": 0.2,
-    "arôme": 0.4,
-    "arômes": 0.4,
-    "additive": 0.5,
-    "sachet": 0.3,
-    "canned":0.2,
-    "cereals":0.1,
-    "beverages":0.2,
-    "gluten":0.05,
-    "sucre":0.35,
-    "sugary":0.35,
-    "snacks":0.1,
-    "huile":0.3,
-    "farine":0.2,
-    "diaries":0.3,
-    "meats":0.35,
-    "viande":0.35,
-    "poudre":0.1,
-    "cheeses":0.3,
-    "glucose":0.1,
-    "groceries":0.2,
-    "sirop":0.2,
-    "amidon":0.1,
-    "frozen":0.3,
-    "verre":0.15,
-    "lait":0.3,
-    "desserts": 0.4,
-    "cacao": 0.4,
-    "potassium": 0.1,
-    "sauces": 0.3,
-    "alcoholic": 0.45,
-    "barquette": 0.3,
-    "jus": 0.3,
-    "chocolates": 0.45,
+export type TagWeightJustification = {
+  label: string;
+  polarity: "positive" | "negative";
+  weight: number;
+  category: TagWeightCategory;
+  confidence: TagWeightConfidence;
+  confidenceScore: number;
+};
 
+type TagGroup = {
+  tags: string[];
+  polarity: "positive" | "negative";
+  weight: number;
+  category: TagWeightCategory;
+  confidence: TagWeightConfidence;
+};
 
+export const weightBandJustifications = {
+  strong: "0.45-0.50: strong signal with clear sustainability impact or recognized certification.",
+  medium: "0.30-0.44: meaningful signal, but the impact depends on product context.",
+  weak: "0.10-0.29: weak or contextual signal that should only slightly adjust the score.",
+  minimal: "0.01-0.09: very weak signal with limited direct eco-score relevance.",
+};
 
+export const confidenceScoreMap: Record<TagWeightConfidence, number> = {
+  high: 1,
+  medium: 0.7,
+  low: 0.4,
+};
 
-  }
+const tagGroups: TagGroup[] = [
+  {
+    tags: [
+      "organic",
+      "organically",
+      "fairtrade",
+      "ecocert",
+      "biodynamic",
+      "bio",
+      "biologique",
+      "biologico",
+      "biologisch",
+    ],
+    polarity: "positive",
+    weight: 0.5,
+    category: "certification",
+    confidence: "high",
+  },
+  {
+    tags: ["sustainable", "sustainably", "nongmo", "gmofree"],
+    polarity: "positive",
+    weight: 0.35,
+    category: "certification",
+    confidence: "medium",
+  },
+  {
+    tags: ["fair", "trade", "natural", "naturally"],
+    polarity: "positive",
+    weight: 0.15,
+    category: "weak-contextual",
+    confidence: "low",
+  },
+  {
+    tags: ["gmo", "gmos"],
+    polarity: "negative",
+    weight: 0.25,
+    category: "ingredient-impact",
+    confidence: "medium",
+  },
+  {
+    tags: ["recyclable", "recycled", "biodegradable", "compostable"],
+    polarity: "positive",
+    weight: 0.45,
+    category: "packaging",
+    confidence: "high",
+  },
+  {
+    tags: ["recycle", "recycling", "reuse", "how2recycle"],
+    polarity: "positive",
+    weight: 0.3,
+    category: "packaging",
+    confidence: "medium",
+  },
+  {
+    tags: ["packaging", "package", "packaged", "pack", "packet", "foil"],
+    polarity: "negative",
+    weight: 0.15,
+    category: "packaging",
+    confidence: "low",
+  },
+  {
+    tags: ["plastic", "plastics"],
+    polarity: "negative",
+    weight: 0.5,
+    category: "packaging",
+    confidence: "high",
+  },
+  {
+    tags: ["paper", "paperboard", "glass", "aluminum", "aluminium", "carton", "container", "bottle", "bottled", "can", "cans"],
+    polarity: "negative",
+    weight: 0.2,
+    category: "packaging",
+    confidence: "medium",
+  },
+  {
+    tags: ["beef", "veal", "pork", "bacon", "lamb"],
+    polarity: "negative",
+    weight: 0.5,
+    category: "ingredient-impact",
+    confidence: "high",
+  },
+  {
+    tags: [
+      "ham",
+      "chicken",
+      "turkey",
+      "duck",
+      "fish",
+      "shellfish",
+      "shrimp",
+      "prawn",
+      "salmon",
+      "tuna",
+      "swordfish",
+      "anchovy",
+      "sardine",
+      "fishery",
+      "seafood",
+    ],
+    polarity: "negative",
+    weight: 0.35,
+    category: "ingredient-impact",
+    confidence: "medium",
+  },
+  {
+    tags: ["dairy", "milk", "cheese", "cream", "butter"],
+    polarity: "negative",
+    weight: 0.4,
+    category: "ingredient-impact",
+    confidence: "high",
+  },
+  {
+    tags: ["whey", "egg", "eggs"],
+    polarity: "negative",
+    weight: 0.3,
+    category: "ingredient-impact",
+    confidence: "medium",
+  },
+  {
+    tags: ["butteroil"],
+    polarity: "negative",
+    weight: 0.2,
+    category: "ingredient-impact",
+    confidence: "low",
+  },
+  {
+    tags: ["farmraised", "grassfed", "cagefree", "freerange"],
+    polarity: "positive",
+    weight: 0.25,
+    category: "ingredient-impact",
+    confidence: "medium",
+  },
+  {
+    tags: ["farm", "farming", "farmed", "farmer", "farmers", "wild", "fed"],
+    polarity: "positive",
+    weight: 0.1,
+    category: "weak-contextual",
+    confidence: "low",
+  },
+  {
+    tags: ["palm", "palmolein", "palmate", "palmitate", "palmiste"],
+    polarity: "negative",
+    weight: 0.45,
+    category: "ingredient-impact",
+    confidence: "high",
+  },
+  {
+    tags: ["vegan", "vegans", "vegetarian", "vegetarians", "plantbased"],
+    polarity: "positive",
+    weight: 0.45,
+    category: "ingredient-impact",
+    confidence: "high",
+  },
+  {
+    tags: ["plant", "meatless", "dairyfree"],
+    polarity: "positive",
+    weight: 0.2,
+    category: "ingredient-impact",
+    confidence: "low",
+  },
+  {
+    tags: ["local", "locally"],
+    polarity: "positive",
+    weight: 0.3,
+    category: "product-category",
+    confidence: "medium",
+  },
+  {
+    tags: ["import", "imported"],
+    polarity: "negative",
+    weight: 0.15,
+    category: "weak-contextual",
+    confidence: "low",
+  },
+  {
+    tags: ["fresh", "freshly"],
+    polarity: "positive",
+    weight: 0.3,
+    category: "processing",
+    confidence: "medium",
+  },
+  {
+    tags: ["frozen", "dried", "dehydrated", "processed", "instant"],
+    polarity: "negative",
+    weight: 0.3,
+    category: "processing",
+    confidence: "medium",
+  },
+  {
+    tags: ["freeze", "freezedried", "precooked", "reconstituted"],
+    polarity: "negative",
+    weight: 0.15,
+    category: "processing",
+    confidence: "low",
+  },
+  {
+    tags: ["carbon"],
+    polarity: "positive",
+    weight: 0.45,
+    category: "certification",
+    confidence: "high",
+  },
+  {
+    tags: ["eco", "environment", "environmental", "green"],
+    polarity: "positive",
+    weight: 0.25,
+    category: "weak-contextual",
+    confidence: "medium",
+  },
 
+  // Legacy Open Food Facts aliases still seen in existing product data.
+  {
+    tags: ["en:organic", "en:eu-organic", "usda"],
+    polarity: "positive",
+    weight: 0.5,
+    category: "certification",
+    confidence: "high",
+  },
+  {
+    tags: ["en:green-dot", "dot", "vert"],
+    polarity: "positive",
+    weight: 0.25,
+    category: "packaging",
+    confidence: "medium",
+  },
+  {
+    tags: ["plant-based"],
+    polarity: "positive",
+    weight: 0.45,
+    category: "ingredient-impact",
+    confidence: "high",
+  },
+  {
+    tags: ["naturel", "water", "fruits", "vegetables", "agriculture", "tournesol", "colza"],
+    polarity: "positive",
+    weight: 0.2,
+    category: "weak-contextual",
+    confidence: "low",
+  },
+  {
+    tags: [
+      "plastique",
+      "sachet",
+      "acid",
+      "acide",
+      "citrique",
+      "e330",
+      "sodium",
+      "arôme",
+      "arômes",
+      "additive",
+      "canned",
+      "cereals",
+      "beverages",
+      "gluten",
+      "sucre",
+      "sugary",
+      "snacks",
+      "huile",
+      "farine",
+      "diaries",
+      "meats",
+      "viande",
+      "poudre",
+      "cheeses",
+      "glucose",
+      "groceries",
+      "sirop",
+      "amidon",
+      "verre",
+      "lait",
+      "desserts",
+      "cacao",
+      "potassium",
+      "sauces",
+      "alcoholic",
+      "barquette",
+      "jus",
+      "chocolates",
+    ],
+    polarity: "negative",
+    weight: 0.25,
+    category: "weak-contextual",
+    confidence: "low",
+  },
+];
 
+const titleCase = (tag: string): string =>
+  tag
+    .replace(/^en:/, "")
+    .replace(/-/g, " ")
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replace(/\b\w/g, char => char.toUpperCase());
+
+const buildWeightMap = (polarity: "positive" | "negative"): Record<string, number> =>
+  Object.fromEntries(
+    tagGroups
+      .filter(group => group.polarity === polarity)
+      .flatMap(group => group.tags.map(tag => [tag, group.weight]))
+  );
+
+const buildTagDisplayMap = (): Record<string, string> =>
+  Object.fromEntries(tagGroups.flatMap(group => group.tags.map(tag => [tag, titleCase(tag)])));
+
+const buildTagClassificationMap = (): Record<string, Pick<TagWeightJustification, "category" | "confidence">> =>
+  Object.fromEntries(
+    tagGroups.flatMap(group =>
+      group.tags.map(tag => [
+        tag,
+        {
+          category: group.category,
+          confidence: group.confidence,
+        },
+      ])
+    )
+  );
+
+export const positiveTagWeights: Record<string, number> = buildWeightMap("positive");
+export const negativeTagWeights: Record<string, number> = buildWeightMap("negative");
 export const tagDisplayMap: Record<string, string> = {
+  ...buildTagDisplayMap(),
   "en:green-dot": "Green Dot (Eco Symbol)",
-  "green": "Green Dot (Eco Symbol)",
-  "dot": "Green Dot (Eco Symbol)",
-  "plant-based": "Plant Based",
-  "fresh": "Fresh",
-  "en:organic": "Organic",
   "en:eu-organic": "EU Organic Certified",
-  "bio": "Biodegradable",
-  "natural": "Natural",
-  "naturel": "Natural",
-  "organic": "Organic",
-  "recyclable": "Recyclable",
-  "sans": "Without Additives",
-  "vert": "Green",
-  "water": "Water",
-  "usda": "USDA Certified",
-  "fruits": "Fruits",
-  "vegetables": "Vegetables",
-  "agriculture": "Agricultural Product",
-  "biologique": "Organic",
-  "tournesol": "Sunflower",
-  "colza": "Rapeseed",
-  "plastique": "Plastic",
-  "plastic": "Plastic",
-  "acid": "Acid",
-  "acide": "Acid",
-  "citrique": "Citric Acid",
-  "e330": "Citric Acid",
-  "sodium": "Sodium",
-  "carton": "Cardboard",
-  "arôme": "Aroma (Flavoring)",
-  "arômes": "Aroma (Flavoring)",
-  "additive": "Additive / Preservative",
-  "sachet": "Sachet (Small Packet)",
-  "canned": "Canned Food",
-  "cereals": "Cereals",
-  "beverages": "Beverages",
-  "gluten": "Gluten",
-  "sucre": "Sugar",
-  "sugary": "Sugar",
-  "snacks": "Snacks",
-  "huile": "Oil",
-  "farine": "Flour",
-  "diaries": "Dairy",
-  "meats": "Meat",
-  "viande": "Meat",
-  "poudre": "Powder",
-  "cheeses": "Cheese",
-  "glucose": "Glucose",
-  "groceries": "Groceries",
-  "sirop": "Syrup",
-  "amidon": "Starch",
-  "frozen": "Frozen",
-  "verre": "Glass",
-  "lait": "Milk",
-  "desserts": "Desserts",
-  "cacao": "Cocoa",
-  "potassium": "Potassium",
-  "sauces": "Sauces",
-  "alcoholic": "Beverages",
-  "barquette": "Barquette (Tray)",
-  "jus": "Juice",
-  "chocolates": "Chocolates"
-}
+  "plant-based": "Plant Based",
+  plantbased: "Plant Based",
+  fairtrade: "Fair Trade",
+  nongmo: "Non-GMO",
+  gmofree: "GMO Free",
+  how2recycle: "How2Recycle",
+  farmraised: "Farm Raised",
+  grassfed: "Grass Fed",
+  cagefree: "Cage Free",
+  freerange: "Free Range",
+  dairyfree: "Dairy Free",
+  freezedried: "Freeze Dried",
+};
+
+const tagWeightClassificationMap = buildTagClassificationMap();
+
+export const getTagWeightJustification = (tagName: string): TagWeightJustification | null => {
+  const positiveWeight = positiveTagWeights[tagName];
+  const negativeWeight = negativeTagWeights[tagName];
+  const weight = positiveWeight ?? negativeWeight;
+
+  if (!weight) return null;
+
+  const fallbackCategory: TagWeightCategory = weight >= 0.3 ? "product-category" : "weak-contextual";
+  const metadata = tagWeightClassificationMap[tagName] || {
+    category: fallbackCategory,
+    confidence: "low" as TagWeightConfidence,
+  };
+
+  return {
+    label: tagDisplayMap[tagName] || titleCase(tagName),
+    polarity: positiveWeight ? "positive" : "negative",
+    weight,
+    confidenceScore: confidenceScoreMap[metadata.confidence],
+    ...metadata,
+  };
+};

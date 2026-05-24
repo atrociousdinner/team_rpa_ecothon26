@@ -18,8 +18,8 @@ def cosineSimilarity(inputTags, csvPath):
         cleanedInputTags = clean_tags(inputTags)
         df = pd.read_csv(csvPath)
 
-        df["tags"] = df["tags"].astype(str)
-        df["clean_tags"] = df["tags"].apply(clean_tags)
+        df["product_tags"] = df["product_tags"].astype(str)
+        df["clean_tags"] = df["product_tags"].apply(clean_tags)
 
         vectorizer = TfidfVectorizer()
         tfidf_matrix = vectorizer.fit_transform(df["clean_tags"])

@@ -27,8 +27,8 @@ BASE_DIR = os.path.dirname(__file__)
 csv_path = os.path.join(BASE_DIR, "data_with_new_eco_score.csv")
 df = pd.read_csv(csv_path)
 
-df["tags"] = df["tags"].astype(str)
-df["clean_tags"] = df["tags"].apply(clean_tags)
+df["product_tags"] = df["product_tags"].astype(str)
+df["clean_tags"] = df["product_tags"].apply(clean_tags)
 
 vectorizer = TfidfVectorizer()
 tfidf_matrix = vectorizer.fit_transform(df["clean_tags"])
