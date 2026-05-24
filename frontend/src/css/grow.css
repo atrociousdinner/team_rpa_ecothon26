@@ -1,0 +1,41 @@
+@keyframes grow1 {
+  0%,
+  50% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.25);
+  }
+}
+
+.bar-grow-1 {
+  animation: grow1 1.25s linear infinite;
+}
+
+@keyframes grow2 {
+  25%,
+  75% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.25);
+  }
+}
+
+.bar-grow-2 {
+  animation: grow2 1.25s linear infinite;
+}
+
+@keyframes grow3 {
+  50%,
+  100% {
+    transform: scale(1);
+  }
+  75% {
+    transform: scale(1.25);
+  }
+}
+
+.bar-grow-3 {
+  animation: grow3 1.25s linear infinite;
+}
