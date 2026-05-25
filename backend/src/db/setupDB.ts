@@ -1,4 +1,4 @@
-import { Pool } from "pg";
+import { Pool, PoolClient } from "pg";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -7,7 +7,7 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
 
-const createUsersTable = async () => {
+const createUsersTable = async (client: PoolClient) => {
   const query = `
     CREATE TABLE IF NOT EXISTS users (
       id UUID PRIMARY KEY,
@@ -21,70 +21,69 @@ const createUsersTable = async () => {
     );
   `;
   try {
-    await pool.query(query);
+    await client.query(query);
     console.log("users table exists");
   } catch (err) {
     console.error("❌ Error creating users table:", err);
   }
 };
 
-const createAttributesTable = async () => {
+const createAttributesTable = async (client: PoolClient) => {
   const query = `
   CREATE TABLE IF NOT EXISTS attributes (
     attribute_id SERIAL PRIMARY KEY,
-    category VARCHAR(100) NOT NULL, 
-    value VARCHAR(255) NOT NULL, 
+    category VARCHAR(100) NOT NULL,
+    value VARCHAR(255) NOT NULL,
     display_name VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);`;
-
+  );`;
   try {
-    await pool.query(query);
+    await client.query(query);
     console.log("attributes table exists");
   } catch (err) {
     console.error("❌ Error creating attributes table:", err);
   }
 };
 
-const createPreferencesTable = async () => {
+const createPreferencesTable = async (client: PoolClient) => {
   const query = `
-CREATE TABLE IF NOT EXISTS user_preferences (
+  CREATE TABLE IF NOT EXISTS user_preferences (
     user_id UUID REFERENCES users(id) ON DELETE CASCADE,
     attribute_id INTEGER REFERENCES attributes(attribute_id) ON DELETE CASCADE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (user_id, attribute_id)
-);`;
-
+  );`;
   try {
-    await pool.query(query);
+    await client.query(query);
     console.log("preferences table exists");
   } catch (err) {
     console.error("❌ Error creating preferences table:", err);
   }
 };
 
-const createProductTable = async () => {
+const createProductTable = async (client: PoolClient) => {
   const query = `
-    CREATE TABLE IF NOT EXISTS product (
+  CREATE TABLE IF NOT EXISTS product (
     product_id VARCHAR(30) PRIMARY KEY,
-    name VARCHAR(100) NOT NULL, 
-    description VARCHAR(1500) NOT NULL, 
+    name VARCHAR(100) NOT NULL,
+    description VARCHAR(1500) NOT NULL,
     brand VARCHAR(100),
     clean_tags VARCHAR(1000),
     image_url VARCHAR(100),
-    ecoscore INTEGER
-);`;
+    ecoscore INTEGER,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  );`;
   try {
-    await pool.query(query);
+    await client.query(query);
     console.log("product table exists");
   } catch (err) {
     console.error("Error creating products table", err);
   }
 };
 
-const createUserInteractionTable = async () => {
+const createUserInteractionTable = async (client: PoolClient) => {
   const query = `
-    CREATE TABLE IF NOT EXISTS user_interaction (
+  CREATE TABLE IF NOT EXISTS user_interaction (
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     product_id VARCHAR(30) NOT NULL REFERENCES product(product_id) ON DELETE CASCADE,
     duration INTEGER,
@@ -92,153 +91,144 @@ const createUserInteractionTable = async () => {
     rating INTEGER,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (user_id, product_id)
-);
- `;
+  );`;
   try {
-    await pool.query(query);
+    await client.query(query);
     console.log("user_interaction table exists");
   } catch (err) {
     console.error("Error creating user_interaction table", err);
   }
 };
 
-const createProductSustainabilityTable = async () => {
+const createProductSustainabilityTable = async (client: PoolClient) => {
   const query = `
-    CREATE TABLE IF NOT EXISTS product_sustainability (
+  CREATE TABLE IF NOT EXISTS product_sustainability (
     product_id VARCHAR(30) NOT NULL REFERENCES product(product_id) ON DELETE CASCADE,
     attribute_id INTEGER NOT NULL REFERENCES attributes(attribute_id) ON DELETE CASCADE,
     PRIMARY KEY (product_id, attribute_id)
-);
- `;
+  );`;
   try {
-    await pool.query(query);
+    await client.query(query);
     console.log("product_sustainability table exists");
   } catch (err) {
     console.error("Error creating product_sustainability table", err);
   }
 };
 
-const createFavoritesTable = async () => {
+const createFavoritesTable = async (client: PoolClient) => {
   const query = `
-CREATE TABLE IF NOT EXISTS favorites (
+  CREATE TABLE IF NOT EXISTS favorites (
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     product_id VARCHAR(30) NOT NULL REFERENCES product(product_id) ON DELETE CASCADE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (user_id, product_id)
-);
-
- `;
+  );`;
   try {
-    await pool.query(query);
+    await client.query(query);
     console.log("favorites table exists");
   } catch (err) {
     console.error("Error creating favorites table", err);
   }
 };
 
-const createReviewLaterTable = async () => {
+const createReviewLaterTable = async (client: PoolClient) => {
   const query = `
-CREATE TABLE IF NOT EXISTS review_later (
+  CREATE TABLE IF NOT EXISTS review_later (
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     product_id VARCHAR(30) NOT NULL REFERENCES product(product_id) ON DELETE CASCADE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (user_id, product_id)
-);
-
- `;
+  );`;
   try {
-    await pool.query(query);
+    await client.query(query);
     console.log("review_later table exists");
   } catch (err) {
     console.error("Error creating review_later table", err);
   }
 };
 
-const createExclusionListTable = async () => {
+const createExclusionListTable = async (client: PoolClient) => {
   const query = `
-CREATE TABLE IF NOT EXISTS exclusion_list (
+  CREATE TABLE IF NOT EXISTS exclusion_list (
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     product_id VARCHAR(30) NOT NULL REFERENCES product(product_id) ON DELETE CASCADE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (user_id, product_id)
-);
-
- `;
+  );`;
   try {
-    await pool.query(query);
+    await client.query(query);
     console.log("exclusion_list table exists");
   } catch (err) {
     console.error("Error creating exclusion_list table", err);
   }
 };
 
-const createProductCertificationTable = async () => {
+const createProductCertificationTable = async (client: PoolClient) => {
   const query = `
-CREATE TABLE IF NOT EXISTS product_certification (
+  CREATE TABLE IF NOT EXISTS product_certification (
     product_id VARCHAR(30) NOT NULL REFERENCES product(product_id) ON DELETE CASCADE,
     certification_id UUID NOT NULL,
     PRIMARY KEY (product_id, certification_id)
-);
-
- `;
+  );`;
   try {
-    await pool.query(query);
+    await client.query(query);
     console.log("product_certification table exists");
   } catch (err) {
     console.error("Error creating product_certification table", err);
   }
 };
 
-const createProductTagsTable = async () => {
+const createProductTagsTable = async (client: PoolClient) => {
   const query = `
-
   CREATE TABLE IF NOT EXISTS product_tags (
     product_id VARCHAR(30) NOT NULL REFERENCES product(product_id) ON DELETE CASCADE,
     tag_id UUID NOT NULL,
     PRIMARY KEY (product_id, tag_id)
-);
-
- `;
+  );`;
   try {
-    await pool.query(query);
+    await client.query(query);
     console.log("product_tags table exists");
   } catch (err) {
     console.error("Error creating product_tags table", err);
   }
 };
 
-const createInputTable = async() => {
+const createInputTable = async (client: PoolClient) => {
   const query = `
-    CREATE TABLE IF NOT EXISTS input (
-      user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-      type TEXT NOT NULL,
-      input TEXT NOT NULL,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      PRIMARY KEY (user_id, type, input)
-    );
-  `;
-
+  CREATE TABLE IF NOT EXISTS input (
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    type TEXT NOT NULL,
+    input TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (user_id, type, input)
+  );`;
   try {
-    await pool.query(query);
-    console.log("input table exists")
+    await client.query(query);
+    console.log("input table exists");
   } catch (err) {
-    console.error("Error creating input table", err)
+    console.error("Error creating input table", err);
   }
-}
+};
 
 async function createAllTables() {
-  await createUsersTable();
-  await createAttributesTable();
-  await createPreferencesTable();
-  await createProductTable();
-  await createUserInteractionTable();
-  await createProductSustainabilityTable();
-  await createFavoritesTable();
-  await createReviewLaterTable();
-  await createExclusionListTable();
-  await createProductCertificationTable();
-  await createProductTagsTable();
-  await createInputTable();
+  const client = await pool.connect();
+  try {
+    await client.query(`SET search_path TO public`);
+    await createUsersTable(client);
+    await createAttributesTable(client);
+    await createPreferencesTable(client);
+    await createProductTable(client);
+    await createUserInteractionTable(client);
+    await createProductSustainabilityTable(client);
+    await createFavoritesTable(client);
+    await createReviewLaterTable(client);
+    await createExclusionListTable(client);
+    await createProductCertificationTable(client);
+    await createProductTagsTable(client);
+    await createInputTable(client);
+  } finally {
+    client.release();
+  }
 }
 
 createAllTables();

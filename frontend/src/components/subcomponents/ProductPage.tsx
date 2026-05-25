@@ -708,12 +708,12 @@ function ProductPage() {
               </div>
 
               {/* Category */}
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <span className="text-gray-600 dark:text-gray-400 font-medium">Category:</span>
                 <span className="inline-block bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 px-3 py-1 rounded-full text-sm font-medium border border-green-200 dark:border-green-700 ml-2">
                   {product.category || 'Uncategorized'}
                 </span>
-              </div>
+              </div> */}
 
               {/* Rating Section */}
               <div className="space-y-4">

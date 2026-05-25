@@ -88,7 +88,7 @@ const EcoFriendlyBlog: React.FC = () => {
           <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700 pb-8">
             <div className="flex items-center">
               <FaCalendarAlt className="h-4 w-4 mr-2" />
-              <span>Published January 15, 2025</span>
+              <span>Published May 25, 2026</span>
             </div>
             <div className="flex items-center">
               <FaClock className="h-4 w-4 mr-2" />

@@ -322,9 +322,9 @@ const ProductCard = ({ product, initialFavorited = false, initialReviewLater = f
 
           {/* Footer - Category and Action Indicators */}
           <div className="mt-auto flex items-center justify-between">
-            <span className="inline-block bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 px-3 py-1 rounded-full text-xs font-medium border border-green-200 dark:border-green-800">
+            {/* <span className="inline-block bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 px-3 py-1 rounded-full text-xs font-medium border border-green-200 dark:border-green-800">
               {product.category || 'Uncategorized'}
-            </span>
+            </span> */}
             
             {/* Action Indicators */}
             <div className="flex items-center gap-2">
